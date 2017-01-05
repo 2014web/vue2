@@ -14,5 +14,3 @@ new Vue({
   ...App
 }).$mount('#app')
 
-// 兼容promise
-window.Promise = Promise

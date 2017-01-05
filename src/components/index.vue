@@ -1,33 +1,137 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://gitter.im/vuejs/vue" target="_blank">Gitter Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-      <br>
-      <li><a href="http://vuejs-templates.github.io/webpack/" target="_blank">Docs for This Template</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
+    <p>{{msg}}</p>
+    <p>---------------vuex---------------------------</p>
+    <h1>{{ totalTime }}</h1>
+    <h2 v-for='item in list'>{{item}}</h2>
+    <button @click='add'>add</button>
+    <p>--------------异步操作-------------------------</p>
+    <p v-for='i in ajax'>{{i}}</p>
+    <button @click='goPromise'>Promise</button>
+    <p>--------------axios-------------------------</p>
+    <pre>
+      // axios.request(config)
+      // axios.get(url[, config])
+      // axios.delete(url[, config])
+      // axios.head(url[, config])
+      // axios.post(url[, data[, config]])
+      // axios.put(url[, data[, config]])
+      // axios.patch(url[, data[, config]])
+    </pre>
+    <p>--------------$on、$emit-------------------------</p>
+    <p>{{count}}</p>
+    <child v-on:addCount='addFn'></child>
+    
+    <child2></child2>
   </div>
 </template>
 
 <script>
+import {mapState , mapActions , mapGetters} from 'vuex'
+import child from './child'
+import child2 from './child2'
 export default {
   name: 'index',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      ajax: [],
+      count: 0
     }
-  }
+  },
+  computed: {
+    ...mapState([
+      'totalTime'
+    ]),
+    ...mapGetters([
+      'list'
+      ])
+  },
+  methods: {
+    ...mapActions([
+      'addTotalTime',
+      'decTotalTime'
+    ]),
+    add () {
+      this.addTotalTime(10)
+    },
+    // promise
+    goPromise () {
+      var that = this
+      new Promise(function(resolve,reject){
+        resolve('步骤一：执行')
+      })
+      .then(function(val){
+        return new Promise(function(resolve,reject){
+          that.ajax.push(val)
+          resolve('步骤二：执行')
+        })
+      })
+      .then(function(val){
+        return new Promise(function(resolve,reject){
+          that.ajax.push(val)
+          resolve('步骤三：执行')
+        })
+      })
+      .then(function(val){
+        that.ajax.push(val)
+      })
+    },
+    // axios
+    axios () {
+      // get
+      axios.get('/user', {
+        params: {
+          ID: 12345
+        }
+      })
+      .then(function (response) {
+        console.log(response)
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
+      // post
+      axios.post('/user', {
+        firstName: 'Fred',
+        lastName: 'Flintstone'
+      })
+      .then(function (response) {
+        console.log(response)
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
+      // axios.request(config)
+      // axios.get(url[, config])
+      // axios.delete(url[, config])
+      // axios.head(url[, config])
+      // axios.post(url[, data[, config]])
+      // axios.put(url[, data[, config]])
+      // axios.patch(url[, data[, config]])
+    },
+    // $on和$emit
+    addFn (num) {
+      this.count += num 
+    }
+   
+  },
+  components: {
+    child,
+    child2
+  },
+  beforeRouteEnter (to, from, next) {
+    next()
+    // getPost(to.params.id, (err, post) => 
+    //   if (err) {
+    //     // display some global error message
+    //     next(false)
+    //   } else {
+    //     next(vm => {
+    //       vm.post = post
+    //     })
+    //   }
+    }
 }
 </script>
 
